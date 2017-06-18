@@ -13,11 +13,11 @@ import UIKit
 open class TTSegmentedControl: UIView {
     
     //Configure the options to for a custom design
-    @IBInspectable open var defaultTextFont: UIFont = UIFont.helveticaNeueLight(12)
-    @IBInspectable open var selectedTextFont: UIFont = UIFont.helveticaNeueLight(12)
-    @IBInspectable open var defaultTextColor: UIColor = UIColor.black
-    @IBInspectable open var selectedTextColor: UIColor = UIColor.white
-    @IBInspectable open var useGradient: Bool = true
+    @IBInspectable open var defaultTextFont: UIFont = UIFont.systemFont(ofSize: 17)
+    @IBInspectable open var selectedTextFont: UIFont = UIFont.boldSystemFont(ofSize: 17)
+    @IBInspectable open var defaultTextColor: UIColor = UIColor.lightGray
+    @IBInspectable open var selectedTextColor: UIColor = UIColor.red
+    @IBInspectable open var useGradient: Bool = false
     
     @IBInspectable open var containerBackgroundColor: UIColor = TTSegmentedControl.UIColorFromRGB(0xF4F4F4)
     @IBInspectable open var thumbColor: UIColor = UIColor.clear
@@ -27,7 +27,7 @@ open class TTSegmentedControl: UIView {
     
     //left and right space between items
     @IBInspectable open var padding: CGSize = CGSize(width: 30, height: 10)
-    @IBInspectable open var cornerRadius: CGFloat = -1 // for rounded corner radius use negative value, 0 to disable
+    @IBInspectable open var cornerRadius: CGFloat = 0 // for rounded corner radius use negative value, 0 to disable
     
     public enum DraggingState: Int {
         case none
@@ -35,7 +35,7 @@ open class TTSegmentedControl: UIView {
         case cancel
     }
     
-    open var itemTitles: [String] = ["Item1", "Item2", "Item3"]
+    open var itemTitles: [String] = ["Item1", "Item2"]
     var attributedDefaultTitles: [NSAttributedString]!
     var attributedSelectedTitles: [NSAttributedString]!
     /*
@@ -62,7 +62,7 @@ open class TTSegmentedControl: UIView {
     fileprivate var lastSelectedViewWidth: CGFloat = 0
     
     
-    fileprivate let thumbPadding: CGFloat = 2
+    fileprivate let thumbPadding: CGFloat = 0
     
     fileprivate let shadowLayer = CAShapeLayer()
     fileprivate var gradientLayer = CAGradientLayer()
@@ -139,7 +139,7 @@ open class TTSegmentedControl: UIView {
     }
     
     //MARK: - Helpers
-    static public func UIColorFromRGB(_ rgbValue: UInt) -> UIColor {
+    static func UIColorFromRGB(_ rgbValue: UInt) -> UIColor {
         return UIColor(
             red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
             green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
@@ -296,9 +296,9 @@ extension TTSegmentedControl {
         thumbContainerView.frame.origin.y = 0
         thumbContainerView.frame.size.height = containerView.frame.size.height
         
-        thumbView.frame.size.height = containerView.frame.size.height - 4
+        thumbView.frame.size.height = containerView.frame.size.height
         thumbView.layer.cornerRadius = cornerRadius < 0 ? 0.5 * thumbView.frame.size.height : cornerRadius
-        thumbView.frame.origin.y = 2
+        thumbView.frame.origin.y = 0
         
         
         shadowLayer.frame = thumbView.bounds
@@ -474,7 +474,7 @@ extension TTSegmentedControl {
         let originX = center.x - 0.5 * width
         
         CATransaction.begin()
-        CATransaction.setAnimationDuration(animated ? 0.4 : 0.0)
+        CATransaction.setAnimationDuration(animated ? 0.2 : 0.0)
         shadowLayer.frame = CGRect(x: 0, y: thumbPadding, width: width, height: height - 2 * thumbPadding)
         gradientLayer.frame = shadowLayer.bounds
         CATransaction.commit()
@@ -490,7 +490,7 @@ extension TTSegmentedControl {
             return
         }
         
-        UIView.animate(withDuration: 0.3, animations: {
+        UIView.animate(withDuration: 0.2, animations: {
             self.thumbContainerView.frame.size.width = width
             self.thumbContainerView.center = center
             
@@ -500,7 +500,7 @@ extension TTSegmentedControl {
             
         }, completion: { (completed) in
             self.lastSelectedViewWidth = self.thumbContainerView.frame.size.width
-        }) 
+        })
     }
     
     fileprivate func selectedViewWidthForPoint(_ point: CGPoint)-> CGFloat {
@@ -602,10 +602,7 @@ extension TTSegmentedControl {
 
 extension TTSegmentedControl {
     
-    open var currentIndex: Int {
-        if !isConfigurated {
-            return 0
-        }
+    var currentIndex: Int {
         let label = labelForPoint(thumbContainerView.center)
         let index = allItemLabels.index(of: label)!
         return index
@@ -620,7 +617,7 @@ extension TTSegmentedControl {
         changeThumbFrameForPoint(label.center, animated: animated)
     }
     
-    open func changeTitle(_ title: String, atIndex: Int) {
+    func changeTitle(_ title: String, atIndex: Int) {
         if !isConfigurated {
             return
         }
@@ -652,7 +649,7 @@ extension TTSegmentedControl {
         
     }
     
-    open func changeAttributedTitle(_ title: NSAttributedString, selectedTile: NSAttributedString?, atIndex: Int) {
+    func changeAttributedTitle(_ title: NSAttributedString, selectedTile: NSAttributedString?, atIndex: Int) {
         if !isConfigurated {
             return
         }
@@ -685,7 +682,7 @@ extension TTSegmentedControl {
         
     }
     
-    open func titleForItemAtIndex(_ index: Int) -> String {
+    func titleForItemAtIndex(_ index: Int) -> String {
         if !isConfigurated {
             return ""
         }
@@ -693,11 +690,11 @@ extension TTSegmentedControl {
         return attributedDefaultTitles[index].string
     }
     
-    open func attributedTitleAtIndex(_ index: Int) -> (normal: NSAttributedString, selected: NSAttributedString) {
+    func attributedTitleAtIndex(_ index: Int) -> (normal: NSAttributedString, selected: NSAttributedString) {
         return (normal: attributedDefaultTitles[index], selected: attributedSelectedTitles[index])
     }
     
-    open func changeThumbShadowColor(_ color: UIColor) {
+    func changeThumbShadowColor(_ color: UIColor) {
         if !isConfigurated {
             return
         }
@@ -705,7 +702,7 @@ extension TTSegmentedControl {
         shadowLayer.shadowColor = color.cgColor
     }
     
-    open func changeThumbColor(_ color: UIColor) {
+    func changeThumbColor(_ color: UIColor) {
         if !isConfigurated {
             return
         }
@@ -713,7 +710,7 @@ extension TTSegmentedControl {
         thumbView.backgroundColor = color
     }
     
-    open func changeBackgroundColor(_ color: UIColor) {
+    func changeBackgroundColor(_ color: UIColor) {
         if !isConfigurated {
             return
         }
@@ -721,7 +718,7 @@ extension TTSegmentedControl {
         containerView.backgroundColor = color
     }
     
-    open func changeThumbGradientColors(_ colors: [UIColor]) {
+    func changeThumbGradientColors(_ colors: [UIColor]) {
         thumbGradientColors = colors
         gradientLayer.colors = thumbGradientColors!.map({$0.cgColor})
     }
